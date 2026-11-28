@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="hu">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#15233c" />
+    <meta name="description" content="Határvölgy — Az előrölt évek. Körökre osztott népmesei nyomozós játék." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Határvölgy" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png" />
+    <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png" />
+    <!-- Link preview card (a shared link shows this). The picture is made by art/tools/make-og.mjs and is
+         not precached for offline play. Image URLs must be absolute: chat apps do not resolve relative ones. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Határvölgy" />
+    <meta property="og:title" content="Határvölgy — Az előrölt évek" />
+    <meta property="og:description" content="Körökre osztott népmesei nyomozós játék. Valaki éveket őröltetett az Öreg Malommal." />
+    <meta property="og:url" content="https://mavrikneedahug.github.io/hatarvolgy-demo/" />
+    <meta property="og:locale" content="hu_HU" />
+    <meta property="og:image" content="https://mavrikneedahug.github.io/hatarvolgy-demo/og.jpg" />
+    <meta property="og:image:secure_url" content="https://mavrikneedahug.github.io/hatarvolgy-demo/og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Határvölgy: népmesei papírkivágás, malom, híd és folyó éjjel, alatta öt helyszín érme." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Határvölgy — Az előrölt évek" />
+    <meta name="twitter:description" content="Körökre osztott népmesei nyomozós játék. Valaki éveket őröltetett az Öreg Malommal." />
+    <meta name="twitter:image" content="https://mavrikneedahug.github.io/hatarvolgy-demo/og.jpg" />
+    <meta name="twitter:image:alt" content="Határvölgy: népmesei papírkivágás, malom, híd és folyó éjjel, alatta öt helyszín érme." />
+    <title>Határvölgy</title>
+    <script>
+      // The text size switch (src/ui/textsize.ts), applied before the first paint so the page does not jump.
+      try { if (localStorage.getItem("hv-text") === "big") document.documentElement.setAttribute("data-text", "big"); } catch (e) {}
+    </script>
+    <script type="module" crossorigin src="./assets/index-rwI9-2dS.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-Cxjv8SPV.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      // A rescue for a page that never draws (lesson HV-068): if a script file fails to load, or the game
+      // has not drawn in 10 s, drop the offline copy and the service worker once and load afresh. If it still
+      // does not draw, say so instead of a white screen. Plain old script: it must run where the game does not.
+      (function () {
+        var KEY = "hv-rescued";
+        function drawn() { var a = document.getElementById("app"); return a && a.firstElementChild; }
+        function rescue() {
+          if (drawn()) return;
+          try { if (sessionStorage.getItem(KEY)) return tell(); sessionStorage.setItem(KEY, "1"); } catch (e) { return tell(); }
+          var sw = navigator.serviceWorker ? navigator.serviceWorker.getRegistrations() : Promise.resolve([]);
+          sw.then(function (rs) { return Promise.all(rs.map(function (r) { return r.unregister(); })); })
+            .then(function () { return window.caches ? caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); }) : null; })
+            .then(function () { location.reload(); }, function () { location.reload(); });
+        }
+        function tell() {
+          var a = document.getElementById("app");
+          if (a && !drawn()) a.innerHTML = '<p style="padding:24px;font:18px/1.5 Georgia,serif;color:#ede6d6">A játék nem tudott elindulni ezen a böngészőn. Frissítsd a telefon rendszerét, vagy nyisd meg Chrome-ban.</p>';
+        }
+        window.addEventListener("error", function (e) { if (e.target && e.target.tagName === "SCRIPT") rescue(); }, true);
+        setTimeout(rescue, 10000);
+      })();
+    </script>
+  </body>
+</html>
